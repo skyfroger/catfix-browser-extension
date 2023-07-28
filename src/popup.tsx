@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import parse from "html-react-parser";
 import "./i18n/config";
+import "./index.css";
 
 import {
   parseProject,
@@ -68,12 +69,15 @@ const Popup = () => {
   }, []);
 
   return (
-    <div style={{ width: "500px", height: "400px" }}>
+    <div className="container w-[500px] h-[400px] max-h-96 m-3">
       <ul>
         {warnings.map((item, index) => (
           <li key={index}>{parse(t(item.message, item.payload))}</li>
         ))}
       </ul>
+      <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        Обновить
+      </button>
     </div>
   );
 };
