@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import parse from "html-react-parser";
 import "./i18n/config";
-import "./index.css";
 
 import {
   parseProject,
@@ -12,6 +11,7 @@ import {
 } from "catfix-utils/dist";
 import { Tip } from "catfix-utils/dist/scaners/types";
 import { useTranslation } from "react-i18next";
+import { Button, Card } from "antd";
 
 const Popup = () => {
   const [currentURL, setCurrentURL] = useState<number>();
@@ -69,15 +69,21 @@ const Popup = () => {
   }, []);
 
   return (
-    <div className="container w-[500px] h-[400px] max-h-96 m-3">
-      <ul>
-        {warnings.map((item, index) => (
-          <li key={index}>{parse(t(item.message, item.payload))}</li>
-        ))}
-      </ul>
-      <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-        Обновить
-      </button>
+    <div
+      style={{
+        width: "450px",
+        height: "500px",
+        maxHeight: "500px",
+        overflow: "auto",
+      }}
+    >
+      <Card title="Результат" extra={<Button type="primary">Проверить</Button>}>
+        <ul>
+          {warnings.map((item, index) => (
+            <li key={index}>{parse(t(item.message, item.payload))}</li>
+          ))}
+        </ul>
+      </Card>
     </div>
   );
 };
