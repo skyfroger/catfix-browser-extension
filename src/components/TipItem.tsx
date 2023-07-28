@@ -1,7 +1,9 @@
 import { Tip } from "catfix-utils/dist/scaners/types";
 import React from "react";
 import { useTranslation } from "react-i18next";
+import parse from "html-react-parser";
 import ScratchCode from "./ui/ScratchCode";
+import { Divider, Space } from "antd";
 
 interface tipItemProps {
   tip: Tip;
@@ -10,10 +12,13 @@ interface tipItemProps {
 function TipItem({ tip }: tipItemProps) {
   const { t } = useTranslation();
   return (
-    <>
-      <p>{t(tip.message, tip.payload)}</p>
-      <p>{tip.code && <ScratchCode code={tip.code} />}</p>
-    </>
+    <div style={{ overflowX: "auto" }}>
+      <Divider>{t(tip.title)}</Divider>
+      <Space direction={"vertical"} align={"center"}>
+        <p>{parse(t(tip.message, { ...tip.payload }))}</p>
+        <div>{tip.code && <ScratchCode code={tip.code} />}</div>
+      </Space>
+    </div>
   );
 }
 

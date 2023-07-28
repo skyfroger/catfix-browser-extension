@@ -10,7 +10,7 @@ interface tipsListProps {
 function TipsList({ tips }: tipsListProps) {
   return (
     <List
-      pagination={{ pageSize: 3 }}
+      pagination={{ pageSize: 3, align: "center", position: "bottom" }}
       dataSource={tips}
       renderItem={(item) => (
         <List.Item>
