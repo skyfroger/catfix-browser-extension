@@ -1,3 +1,5 @@
+import { parseProject } from "catfix-utils/dist";
+
 function polling() {
   console.log("polling");
   setTimeout(polling, 1000 * 30);

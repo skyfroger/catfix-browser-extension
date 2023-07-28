@@ -1,7 +1,7 @@
+let port = chrome.runtime.connect({ name: chrome.runtime.id });
+
 const onLoad = () => {
   console.log("content script loaded!");
-
-  let port = chrome.runtime.connect({ name: chrome.runtime.id });
 
   let counter = 0;
 
