@@ -12,6 +12,7 @@ import {
 import { Tip } from "catfix-utils/dist/scaners/types";
 import { useTranslation } from "react-i18next";
 import { Button, Card } from "antd";
+import TipsList from "./components/TipsList";
 
 const Popup = () => {
   const [currentURL, setCurrentURL] = useState<number>();
@@ -78,11 +79,7 @@ const Popup = () => {
       }}
     >
       <Card title="Результат" extra={<Button type="primary">Проверить</Button>}>
-        <ul>
-          {warnings.map((item, index) => (
-            <li key={index}>{parse(t(item.message, item.payload))}</li>
-          ))}
-        </ul>
+        <TipsList tips={warnings} />
       </Card>
     </div>
   );
