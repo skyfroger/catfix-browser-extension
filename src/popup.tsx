@@ -6,12 +6,23 @@ const Popup = () => {
   const [currentURL, setCurrentURL] = useState<string>();
 
   useEffect(() => {
-    chrome.action.setBadgeText({ text: count.toString() });
+    chrome.action.setBadgeText({
+      text: `⚠️${count.toString()}❗${count.toString()}`,
+    });
   }, [count]);
 
   useEffect(() => {
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
       setCurrentURL(tabs[0].url);
+    });
+
+    chrome.runtime.onMessageExternal.addListener(function (
+      request,
+      sender,
+      sendResponse
+    ) {
+      console.log("popup recieved", sender.url, request.message);
+      setCurrentURL(request.message);
     });
   }, []);
 

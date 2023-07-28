@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
 
-  "name": "Chrome Extension TypeScript Starter",
+  "name": "КотФикс - расширение",
   "description": "Chrome Extension, TypeScript, Visual Studio Code",
   "version": "1.0",
 
@@ -16,7 +16,7 @@
 
   "content_scripts": [
       {
-          "matches": ["<all_urls>"],
+          "matches": ["https://scratch.mit.edu/projects/*/editor/"],
           "js": ["js/vendor.js", "js/content_script.js"]
       }
   ],
@@ -26,10 +26,15 @@
   },
 
   "permissions": [
-    "storage"
+    "storage",
+    "tabs"
   ],
 
   "host_permissions": [
     "<all_urls>"
-  ]
+  ],
+
+  "externally_connectable": {
+    "matches": ["https://scratch.mit.edu/projects/*"]
+  }
 }
