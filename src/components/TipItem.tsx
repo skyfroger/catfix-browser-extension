@@ -12,7 +12,7 @@ interface tipItemProps {
 function TipItem({ tip }: tipItemProps) {
   const { t } = useTranslation();
   return (
-    <div style={{ overflowX: "auto" }}>
+    <div style={{ overflowX: "auto", width: "100%" }}>
       <Divider>{t(tip.title)}</Divider>
       <Space direction={"vertical"} align={"center"}>
         <p>{parse(t(tip.message, { ...tip.payload }))}</p>
