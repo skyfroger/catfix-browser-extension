@@ -17,8 +17,10 @@ import TipsList from "./components/TipsList";
 import Moment from "react-moment";
 import "moment/locale/ru";
 
+// ключ по которому хранится проект в localStorage
 const PROJECT_KEY: string = "project";
 
+// тип данных, хранящихся в localStorage
 type LocalData = {
   id: number;
   grades: Map<categories, graderResult>;
@@ -45,27 +47,30 @@ const Popup = () => {
    * @param id идентификатор проекта
    */
   async function getProject(id: number) {
+    // получаем проект из localStorage
     const localData: { [key: string]: LocalData } =
       await chrome.storage.local.get([PROJECT_KEY]);
 
-    console.log(localData[PROJECT_KEY]);
     if (
       Object.keys(localData).length !== 0 &&
       localData[PROJECT_KEY].id === id
     ) {
-      console.log("Загрузка из localStorage");
+      // берём информацию из localStorage
       setProject({
         ...localData[PROJECT_KEY],
       });
     } else {
-      console.log("Загрузка из сети");
+      // берём информацию из сети
       setIsLoading(true);
       loadFromNet(id);
     }
   }
 
+  /**
+   * Загрузка проекта по сети
+   * @param id идентификатор проекта
+   */
   async function loadFromNet(id: number) {
-    console.log("Функция loadFromNet", id);
     try {
       const tokenResp = await fetch(
         `https://trampoline.turbowarp.org/proxy/projects/${id}`
@@ -84,7 +89,7 @@ const Popup = () => {
 
       // получаем JSON с проектом
       const projectJSON = await resp.json();
-
+      // парсим проект
       const parsedProject = parseProject(projectJSON);
 
       // получаем оценки
@@ -94,8 +99,6 @@ const Popup = () => {
       // получаем список замечаний
       const warnings = scanForWarnings(parsedProject, projectJSON);
 
-      const currentDate = new Date();
-      console.log("Дата", currentDate);
       const pr: LocalData = {
         id: id,
         grades: grades,
@@ -104,10 +107,12 @@ const Popup = () => {
         lastUpdate: Date.now(),
       };
 
+      // сохраняем результат оценивания и проверки в localStorage
       await chrome.storage.local.set({
         project: pr,
       });
 
+      // сохраняем результаты в state
       setProject({ ...pr });
     } catch (e) {
       console.error(e);
@@ -120,25 +125,39 @@ const Popup = () => {
    * Проверка проекта по клику на кнопку
    */
   const handleCheck = () => {
-    async function load() {
-      loadFromNet(projectId);
-    }
-
     setIsLoading(true);
-    load();
+    // загрузка проекта по сети
+    loadFromNet(projectId);
   };
 
   useEffect(() => {
-    console.log("useEffect - начало");
-
+    // задаём язык для даты последней проверки проекта
     Moment.globalLocale = i18n.language;
 
+    // очищаем содержимое бэджа
+    chrome.action.setBadgeText({
+      text: "",
+    });
+
+    /*
+    Ждём от фонового скрипта сообщение updateProject.
+    Когда сообщение получено, обновляем интерфейс
+     */
+    chrome.runtime.onMessage.addListener(function (
+      request,
+      sender,
+      sendResponse
+    ) {
+      if (request.message === "updateProject") {
+        getProject(request.id);
+      }
+    });
+
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-      // todo вставить проверку url (должны находиться на странице проекта или в редакторе)
       const match = (tabs[0].url ?? "").match(/\d{4,}/);
       const projectId = match ? Number(match[0]) : 0;
 
-      // сохраняем id проекта в стейт
+      // сохраняем id проекта в state
       setProjectId(projectId);
       // запрашиваем информацию о проекте
       getProject(projectId);
