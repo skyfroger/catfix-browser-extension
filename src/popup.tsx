@@ -14,6 +14,8 @@ import { categories, graderResult } from "catfix-utils/dist/graders";
 import { useTranslation } from "react-i18next";
 import { Button, Card, Tabs } from "antd";
 import TipsList from "./components/TipsList";
+import Moment from "react-moment";
+import "moment/locale/ru";
 
 const PROJECT_KEY: string = "project";
 
@@ -33,10 +35,10 @@ const Popup = () => {
     grades: new Map(),
     errors: [],
     warnings: [],
-    lastUpdate: new Date().getTime(),
+    lastUpdate: Date.now(),
   });
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   /**
    * Запрос на получение проекта
@@ -46,6 +48,7 @@ const Popup = () => {
     const localData: { [key: string]: LocalData } =
       await chrome.storage.local.get([PROJECT_KEY]);
 
+    console.log(localData[PROJECT_KEY]);
     if (
       Object.keys(localData).length !== 0 &&
       localData[PROJECT_KEY].id === id
@@ -68,14 +71,10 @@ const Popup = () => {
         `https://trampoline.turbowarp.org/proxy/projects/${id}`
       );
       let token;
-      let projectName = null;
-      let projectAuthor = "-";
 
       if (tokenResp.ok) {
         const tokenData = await tokenResp.json();
         token = `&token=${tokenData.project_token}`;
-        projectName = tokenData.title; // получаем название проекта
-        projectAuthor = tokenData.author.username; // получаем имя пользователя
       }
 
       // запрос на получение содержимого проекта
@@ -95,12 +94,14 @@ const Popup = () => {
       // получаем список замечаний
       const warnings = scanForWarnings(parsedProject, projectJSON);
 
+      const currentDate = new Date();
+      console.log("Дата", currentDate);
       const pr: LocalData = {
         id: id,
         grades: grades,
         errors: errors,
         warnings: warnings,
-        lastUpdate: new Date().getTime(),
+        lastUpdate: Date.now(),
       };
 
       await chrome.storage.local.set({
@@ -129,6 +130,9 @@ const Popup = () => {
 
   useEffect(() => {
     console.log("useEffect - начало");
+
+    Moment.globalLocale = i18n.language;
+
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
       // todo вставить проверку url (должны находиться на странице проекта или в редакторе)
       const match = (tabs[0].url ?? "").match(/\d{4,}/);
@@ -151,13 +155,19 @@ const Popup = () => {
       }}
     >
       <Card
-        title="Результат"
+        title={t("ui.title")}
         extra={
           <Button onClick={handleCheck} loading={isLoading} type="primary">
-            Проверить
+            {t("ui.checkButton")}
           </Button>
         }
       >
+        <div>
+          <span>
+            {t("ui.lastCheck")}
+            <Moment fromNow={true} date={project.lastUpdate} />
+          </span>
+        </div>
         <Tabs tabPosition={"top"}>
           <Tabs.TabPane
             tab={
