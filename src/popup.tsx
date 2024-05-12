@@ -131,9 +131,6 @@ const Popup = () => {
   };
 
   useEffect(() => {
-    // задаём язык для даты последней проверки проекта
-    Moment.globalLocale = i18n.language;
-
     // очищаем содержимое бэджа
     chrome.action.setBadgeText({
       text: "",
@@ -152,6 +149,18 @@ const Popup = () => {
         getProject(request.id);
       }
     });
+
+    chrome.storage.sync.get(
+      {
+        lang: "ru",
+      },
+      (items) => {
+        console.log(items.lang);
+        i18n.changeLanguage(items.lang);
+        // задаём язык для даты последней проверки проекта
+        Moment.globalLocale = i18n.language;
+      }
+    );
 
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
       const match = (tabs[0].url ?? "").match(/\d{4,}/);
